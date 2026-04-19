@@ -73,14 +73,18 @@ with st.sidebar:
 # =============================================================================
 # PÁGINA PRINCIPAL
 # =============================================================================
-st.title("🏛️ Emendas Parlamentares do seu Município")
-st.markdown(
-    "Descubra quanto seu município recebeu em emendas parlamentares, "
-    "de quais parlamentares e para quais áreas."
-)
+st.markdown("""
+<div class="hero">
+    <div class="hero-title">🏛️ Verba na <span class="hero-accent">Minha Cidade</span></div>
+    <div class="hero-subtitle">
+        Descubra quanto seu município recebeu em emendas parlamentares,
+        de quais parlamentares e para quais áreas.
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Input de busca
-col1, col2 = st.columns([3, 1])
+col1, col2 = st.columns([5, 1])
 with col1:
     municipio_input = st.text_input(
         "Nome do Município",
@@ -88,7 +92,26 @@ with col1:
         key="municipio_input"
     )
 with col2:
-    btn_buscar = st.button("🔍 Buscar", type="primary", use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    btn_buscar = st.button("Buscar →", type="primary", use_container_width=True)
+
+# Autocomplete em tempo real (mínimo 2 chars, antes de clicar Buscar)
+sugestoes_df = None
+if len(municipio_input.strip()) >= 2 and not btn_buscar:
+    v_ok, _ = validar_municipio(municipio_input)
+    if v_ok:
+        sugestoes_df = buscar_municipio_por_nome(municipio_input)
+        if not sugestoes_df.empty:
+            nome_q = municipio_input.strip().lower()
+            primeiro_nome = sugestoes_df.iloc[0]['nome'].lower()
+            # Pula selectbox se há 1 resultado ou se o 1º é exato (sem fricção)
+            exato = (len(sugestoes_df) == 1 or primeiro_nome == nome_q)
+            if not exato:
+                st.selectbox(
+                    "Sugestões:",
+                    sugestoes_df['nome_completo'].tolist(),
+                    key="sugestao_municipio"
+                )
 
 
 # =============================================================================
@@ -106,15 +129,19 @@ if municipio_input and btn_buscar:
         st.error(msg)
         st.stop()
 
-    # Busca municípios correspondentes
-    with st.spinner("Buscando município..."):
-        resultados = buscar_municipio_por_nome(municipio_input)
+    # Usa seleção do autocomplete se disponível; senão busca pelo texto digitado
+    escolha = st.session_state.get("sugestao_municipio")
+    if escolha and sugestoes_df is not None and not sugestoes_df.empty:
+        resultados = sugestoes_df[sugestoes_df['nome_completo'] == escolha].copy()
+    else:
+        with st.spinner("Buscando município..."):
+            resultados = buscar_municipio_por_nome(municipio_input)
 
     if resultados.empty:
         st.warning("Município não encontrado. Tente outro nome.")
         st.stop()
 
-    # Seleção do município
+    # Seleção do município (fallback quando autocomplete não filtrou para 1)
     if len(resultados) > 1:
         opcoes = resultados['nome_completo'].tolist()
         selecionado = st.selectbox("Selecione o município:", opcoes)
@@ -243,7 +270,7 @@ if 'dados_mun' in locals() and 'resumo' in locals():
     # NARRATIVA DO LLM
     # =============================================================================
     st.divider()
-    st.header("📝 Análise do Agente")
+    st.subheader("✦ Análise da Vera")
 
     with st.spinner("Gerando análise com IA..."):
         dados_llm = {
@@ -270,27 +297,22 @@ if 'dados_mun' in locals() and 'resumo' in locals():
         resumo_filtrado = filtrar_saida(analise["resumo"])
         memoria.adicionar_interacao("assistant", narrativa_filtrada[:500])
 
-    st.caption(resumo_filtrado)
-    st.markdown(narrativa_filtrada)
+    st.markdown(f"""
+<div class="ai-card">
+    <div class="ai-label">Resumo</div>
+    <div class="ai-content">{resumo_filtrado}</div>
+    <div class="ai-content" style="margin-top:12px">{narrativa_filtrada}</div>
+</div>
+""", unsafe_allow_html=True)
 
 
     # =============================================================================
     # CHAT INTERATIVO
     # =============================================================================
     st.divider()
-    st.header("💬 Pergunte ao Agente")
+    st.markdown('<p class="vera-header">💬 Pergunte à Vera</p>', unsafe_allow_html=True)
 
-    col_input, col_btn = st.columns([5, 1])
-    with col_input:
-        pergunta = st.text_input(
-            "Sua pergunta:",
-            placeholder="Ex: Por que a saúde recebe mais recursos?",
-            label_visibility="collapsed"
-        )
-    with col_btn:
-        btn_enviar = st.button("Enviar", use_container_width=True)
-
-    if pergunta and btn_enviar:
+    if pergunta := st.chat_input("Ex: Por que a saúde recebe mais recursos?"):
         seguro, msg = filtrar_entrada(pergunta)
         if not seguro:
             st.error(msg)
@@ -300,8 +322,10 @@ if 'dados_mun' in locals() and 'resumo' in locals():
                 resposta = responder_pergunta(pergunta, dados_llm)
                 resposta_filtrada = filtrar_saida(resposta)
                 memoria.adicionar_interacao("assistant", resposta_filtrada)
-
-            st.markdown(resposta_filtrada)
+            with st.chat_message("user"):
+                st.markdown(pergunta)
+            with st.chat_message("assistant"):
+                st.markdown(resposta_filtrada)
 
 
     # =============================================================================
@@ -319,8 +343,9 @@ if 'dados_mun' in locals() and 'resumo' in locals():
 # =============================================================================
 # FOOTER (sempre visível)
 # =============================================================================
-st.divider()
-st.caption(
-    "Fonte: CGU/Emendas Parlamentares via Base dos Dados | IBGE | "
-    "Projeto educacional – Transparência Pública"
-)
+st.markdown("""
+<div class="footer">
+    Fonte: CGU/Emendas Parlamentares via Base dos Dados | IBGE<br>
+    Projeto educacional – Transparência Pública
+</div>
+""", unsafe_allow_html=True)

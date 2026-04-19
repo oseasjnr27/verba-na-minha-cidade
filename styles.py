@@ -1,80 +1,148 @@
 """
 styles.py - Design System Dark para a aplicação VerbaCidade
+Tokens: bg=#0a0a0b, accent=#00d4aa, surface=#111113
 """
 
 CUSTOM_CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 
-/* Reset Geral */
+/* ── Tokens ── */
+:root {
+    --bg:      #0a0a0b;
+    --surface: #111113;
+    --border:  rgba(255,255,255,0.08);
+    --accent:  #00d4aa;
+    --text:    #e0e0e0;
+    --muted:   #6b7280;
+}
+
+/* ── Reset Geral ── */
 .stApp {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, hsl(222, 47%, 6%) 0%, hsl(217, 33%, 12%) 100%);
-    color: white;
+    background-color: var(--bg);
+    color: var(--text);
 }
 
-/* Esconder elementos nativos */
-#MainMenu, footer, header {visibility: hidden;}
+#MainMenu, footer, header { visibility: hidden; }
 
-/* Cards de Indicadores (KPIs) */
+/* ── Hero ── */
+.hero { text-align: center; padding: 48px 20px 32px; }
+.hero-title {
+    font-size: 40px; font-weight: 800; color: #fff; margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+.hero-subtitle { font-size: 15px; color: var(--muted); max-width: 560px; margin: 0 auto; }
+.hero-accent { color: var(--accent); }
+
+/* ── KPI Cards ── */
 .kpi-card {
-    background: hsl(222, 47%, 9%);
-    border: 1px solid hsl(217, 33%, 18%);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 20px;
-    transition: all 0.2s ease;
-    margin-bottom: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 12px;
 }
-
 .kpi-card:hover {
-    transform: translateY(-2px);
-    border-color: hsl(217, 91%, 60%);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(0,212,170,0.08);
 }
-
 .kpi-title {
-    font-size: 11px;
-    font-weight: 500;
-    color: hsl(215, 20%, 60%);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 11px; font-weight: 500; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.6px;
 }
-
 .kpi-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 26px;
-    font-weight: 700;
-    margin-top: 5px;
+    font-size: 26px; font-weight: 700; color: var(--accent);
+    margin-top: 6px;
 }
+.kpi-delta { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-/* Variantes de cores */
-.primary { color: hsl(217, 91%, 60%); }
-.success { color: hsl(160, 84%, 39%); }
-.warning { color: hsl(38, 92%, 50%); }
-.ai { color: hsl(258, 90%, 66%); }
-
-/* Hero Section */
-.hero { text-align: center; padding: 40px 20px; }
-.hero-title { font-size: 42px; font-weight: 800; color: white; margin-bottom: 10px; }
-.hero-subtitle { font-size: 16px; color: hsl(215, 20%, 60%); max-width: 600px; margin: 0 auto; }
-
-/* AI Analysis Card */
+/* ── AI / Analysis Card ── */
 .ai-card {
-    background: linear-gradient(135deg, hsl(258, 50%, 12%) 0%, hsl(222, 47%, 9%) 100%);
-    border: 1px solid hsl(258, 50%, 25%);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 24px;
     margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+.ai-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--accent), transparent 60%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+.ai-label {
+    font-size: 11px; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;
+}
+.ai-content { color: var(--text); line-height: 1.7; font-size: 14px; }
+
+/* ── Vera Chat Section ── */
+.vera-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+}
+.vera-header {
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
 }
 
-.ai-content { color: hsl(215, 20%, 80%); line-height: 1.6; font-size: 14px; }
+/* ── Charts ── */
+.chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
 
-/* Progress Bar */
-.progress-container { background: hsl(217, 33%, 15%); border-radius: 4px; height: 8px; margin-top: 8px; }
-.progress-bar { height: 100%; background: hsl(160, 84%, 39%); border-radius: 4px; }
+/* ── Progress Bar ── */
+.progress-container {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px; height: 6px; margin-top: 8px;
+}
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00a88a);
+    border-radius: 4px;
+}
 
-/* Footer */
-.footer { text-align: center; padding: 40px; color: #555; font-size: 12px; border-top: 1px solid #1e293b; }
+/* ── Footer ── */
+.footer {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted); font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+}
+
+/* ── Streamlit overrides ── */
+[data-testid="stChatInput"] textarea {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 8px !important;
+}
+[data-testid="stChatInput"] textarea:focus {
+    border-color: var(--accent) !important;
+}
+[data-testid="metric-container"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
 </style>
 """
 

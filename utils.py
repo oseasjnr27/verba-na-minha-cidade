@@ -100,8 +100,14 @@ def buscar_municipio_por_nome(nome_busca: str) -> pd.DataFrame:
     # BUG #7: regex=False evita que caracteres especiais do usuário sejam interpretados
     mask = df['nome_normalizado'].str.contains(nome_busca_normalizado, na=False, regex=False)
 
-    resultado = df[mask].head(10).copy()
-    resultado = resultado.drop(columns=['nome_normalizado'])
+    resultado = df[mask].copy()
+    # Ordena por relevância: exato (3) > prefixo (2) > contém (1)
+    q = nome_busca_normalizado
+    resultado['_score'] = resultado['nome_normalizado'].apply(
+        lambda x: 3 if x == q else (2 if x.startswith(q) else 1)
+    )
+    resultado = resultado.sort_values('_score', ascending=False).head(10)
+    resultado = resultado.drop(columns=['nome_normalizado', '_score'])
     resultado['nome_completo'] = resultado['nome'] + ' - ' + resultado['sigla_uf']
 
     return resultado

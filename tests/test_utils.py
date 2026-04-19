@@ -145,6 +145,43 @@ class TestBuscaMunicipioInputRegex:
         assert isinstance(resultado, pd.DataFrame)
 
 
+class TestBuscaMunicipioRelevancia:
+    """Ordenação por relevância — exato/prefixo antes de 'contém'."""
+
+    def _df_com_laje(self):
+        # Laje do Muriaé aparece primeiro no DataFrame (simula ordem CSV)
+        return pd.DataFrame({
+            "id_municipio": ["3136900", "3143906"],
+            "nome":         ["Laje do Muriaé", "Muriaé"],
+            "sigla_uf":     ["MG",             "MG"],
+            "nome_uf":      ["Minas Gerais",   "Minas Gerais"],
+        })
+
+    def test_busca_exata_retorna_municipio_exato_primeiro(self, monkeypatch):
+        # ARRANGE — sem ordenação, "Laje do Muriaé" viria primeiro (está no índice 0)
+        monkeypatch.setattr("utils.get_municipios_df", self._df_com_laje)
+        # ACT
+        resultado = buscar_municipio_por_nome("Muriaé")
+        # ASSERT
+        assert resultado.iloc[0]["nome"] == "Muriaé"
+
+    def test_busca_prefixo_retorna_municipio_com_prefixo_primeiro(self, monkeypatch):
+        # ARRANGE — "muri" é prefixo de "Muriaé", mas só está contido em "Laje do Muriaé"
+        monkeypatch.setattr("utils.get_municipios_df", self._df_com_laje)
+        # ACT
+        resultado = buscar_municipio_por_nome("muri")
+        # ASSERT
+        assert resultado.iloc[0]["nome"] == "Muriaé"
+
+    def test_busca_sem_acento_exata_retorna_municipio_exato_primeiro(self, monkeypatch):
+        # ARRANGE
+        monkeypatch.setattr("utils.get_municipios_df", self._df_com_laje)
+        # ACT
+        resultado = buscar_municipio_por_nome("muriae")
+        # ASSERT
+        assert resultado.iloc[0]["nome"] == "Muriaé"
+
+
 class TestBuscaMunicipioUsaCacheCSV:
     """BUG #6 (revisado) — buscar_municipio_por_nome usa cache CSV, não BigQuery direto.
 

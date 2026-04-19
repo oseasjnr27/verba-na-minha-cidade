@@ -5,17 +5,17 @@ charts.py - Gráficos com tema escuro
 import plotly.graph_objects as go
 import pandas as pd
 
-# Cores do tema
+# Cores do tema — tokens do design system (#0a0a0b / #00d4aa / #111113)
 COLORS = {
-    'primary': '#3b82f6',
-    'success': '#22c55e',
+    'primary': '#00d4aa',
+    'success': '#22d3ee',
     'warning': '#f59e0b',
-    'purple': '#8b5cf6',
+    'purple': '#a78bfa',
     'background': 'rgba(0,0,0,0)',
-    'card': '#0f172a',
-    'grid': '#1e3a5f',
-    'text': '#94a3b8',
-    'text_light': '#e2e8f0'
+    'card': '#111113',
+    'grid': 'rgba(255,255,255,0.06)',
+    'text': '#6b7280',
+    'text_light': '#e0e0e0'
 }
 
 AREA_COLORS = [
