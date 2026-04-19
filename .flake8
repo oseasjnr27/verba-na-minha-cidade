@@ -1,0 +1,25 @@
+[flake8]
+max-line-length = 100
+exclude =
+    venv,
+    .git,
+    __pycache__,
+    app2.py,
+    test.py,
+    test_setup.py,
+    .claude,
+    data
+ignore =
+    W503,
+    W291,
+    W293,
+    W292,
+    E241,
+    E302,
+    E303,
+    E305
+per-file-ignores =
+    styles.py:E501
+    utils.py:E501
+    components.py:E501,E302
+    tests/*:E501
