@@ -4,7 +4,6 @@
 #        get_memoria_sessao (BUG #3 — isolamento entre sessões).
 # Cobertura mínima exigida: 80%
 
-import pytest
 from memory import MemoriaAgente, get_memoria_sessao
 
 
@@ -235,7 +234,7 @@ class TestGetResumoSessao:
         from datetime import datetime, timedelta
         memoria = MemoriaAgente()
         inicio_falso = datetime(2026, 1, 1, 0, 0, 0)
-        agora_falso  = inicio_falso + timedelta(days=1, seconds=30)
+        agora_falso = inicio_falso + timedelta(days=1, seconds=30)
         memoria.sessao_inicio = inicio_falso
         # ACT
         with patch("memory.datetime") as mock_dt:

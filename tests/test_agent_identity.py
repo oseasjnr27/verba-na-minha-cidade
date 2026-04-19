@@ -3,7 +3,6 @@
 # Cenários: campos obrigatórios, escopo, tom, system prompt completo.
 # Cobertura mínima exigida: 70%
 
-import pytest
 from agent_identity import AGENT_IDENTITY, get_system_prompt
 
 

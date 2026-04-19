@@ -3,7 +3,6 @@
 # Cenários: CSS não-vazio, classes esperadas presentes, st.markdown chamado corretamente.
 # BUG #4 — CSS nunca era injetado no app.
 
-import pytest
 from unittest.mock import MagicMock
 from styles import CUSTOM_CSS, aplicar_estilos
 

@@ -9,7 +9,6 @@
 # (utils_cache) não afeta a referência já resolvida.
 
 import pandas as pd
-import pytest
 
 from utils import buscar_municipio_por_nome, extrair_id_municipio
 

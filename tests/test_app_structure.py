@@ -43,7 +43,7 @@ class TestPlotlyChartKeys:
             if "key" not in keywords:
                 sem_key.append(ast.get_source_segment(self.source, call))
         assert sem_key == [], (
-            f"st.plotly_chart sem key= encontrado(s):\n" + "\n".join(str(s) for s in sem_key)
+            "st.plotly_chart sem key= encontrado(s):\n" + "\n".join(str(s) for s in sem_key)
         )
 
     def test_chaves_dos_graficos_sao_unicas(self):

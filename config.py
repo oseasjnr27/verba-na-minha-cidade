@@ -30,22 +30,18 @@ CACHE_TTL_SECONDS = 86400  # 24 horas
 
 # === Validação (fail fast) ===
 def validate_config():
- """
- 💡 LÓGICA: Falhar cedo é melhor que falhar tarde.
- Se falta config, melhor descobrir ao iniciar o app,
- não no meio de uma query do usuário.
- """
- missing = []
- if not GCP_PROJECT_ID:
-     missing.append("GCP_PROJECT_ID")
- if not GEMINI_API_KEY:
-     missing.append("GEMINI_API_KEY")
- 
- if missing:
-     raise EnvironmentError(
-         f" Variáveis de ambiente faltando: {', '.join(missing)}\n"
-         f"   Configure no arquivo .env"
-     )
+    """Falhar cedo: se falta config, melhor descobrir ao iniciar o app."""
+    missing = []
+    if not GCP_PROJECT_ID:
+        missing.append("GCP_PROJECT_ID")
+    if not GEMINI_API_KEY:
+        missing.append("GEMINI_API_KEY")
+
+    if missing:
+        raise EnvironmentError(
+            f"Variáveis de ambiente faltando: {', '.join(missing)}\n"
+            f"Configure no arquivo .env"
+        )
 
 # Executa validação ao importar
 if __name__ != "__main__":  # pragma: no cover

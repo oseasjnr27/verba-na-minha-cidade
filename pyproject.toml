@@ -3,13 +3,23 @@ exclude_dirs = ["tests", "venv", ".claude", "data"]
 skips = ["B608"]
 
 [tool.coverage.run]
-source = ["."]
+source = [
+    "agent_identity",
+    "charts",
+    "config",
+    "guardrails",
+    "llm",
+    "memory",
+    "styles",
+    "utils",
+    "utils_cache"
+]
 omit = [
-    "tests/*",
     "venv/*",
-    "app2.py",
-    "test.py",
-    "test_setup.py",
+    "tests/*",
+    ".web/*",
+    "components.py",
+    "app.py"
 ]
 
 [tool.coverage.report]

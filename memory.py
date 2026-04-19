@@ -70,7 +70,8 @@ class MemoriaAgente:
         for item in self.historico[-5:]:
             role = "Usuário" if item["role"] == "user" else "Agente"
             # Limita o conteúdo exibido para evitar prompts gigantes
-            conteudo_curto = item['content'][:200] + "..." if len(item['content']) > 200 else item['content']
+            conteudo = item['content']
+            conteudo_curto = conteudo[:200] + "..." if len(conteudo) > 200 else conteudo
             linhas.append(f"{role}: {conteudo_curto}")
         
         return "\n".join(linhas)
@@ -85,7 +86,9 @@ class MemoriaAgente:
         """
         return {
             "total_interacoes": len(self.historico),
-            "municipio_analisado": self.contexto_municipio.get("nome") if self.contexto_municipio else None,
+            "municipio_analisado": (
+                self.contexto_municipio.get("nome") if self.contexto_municipio else None
+            ),
             "duracao_sessao_segundos": int((datetime.now() - self.sessao_inicio).total_seconds())
         }
     

@@ -6,7 +6,6 @@ e emendas parlamentares de forma acessível e interativa.
 """
 
 import streamlit as st
-import pandas as pd
 
 # Imports dos nossos módulos
 from config import APP_NAME, APP_DESCRIPTION
@@ -23,7 +22,7 @@ from utils import (
 )
 from llm import gerar_analise_municipio, responder_pergunta
 from guardrails import filtrar_entrada, filtrar_saida, validar_municipio
-from memory import MemoriaAgente, get_memoria_sessao
+from memory import get_memoria_sessao
 from styles import aplicar_estilos
 from charts import (
     grafico_evolucao_anual,
@@ -164,7 +163,8 @@ if 'dados_mun' in locals() and 'resumo' in locals():
         pago_fmt = f"R$ {resumo['total_pago']:,.0f}".replace(",", ".")
         st.metric("Total Pago", pago_fmt)
     with col4:
-        per_capita = resumo['total_empenhado'] / dados_mun['populacao'] if dados_mun['populacao'] > 0 else 0
+        pop = dados_mun['populacao']
+        per_capita = resumo['total_empenhado'] / pop if pop > 0 else 0
         pc_fmt = f"R$ {per_capita:,.2f}".replace(",", ".")
         st.metric("Per Capita", pc_fmt)
 
@@ -177,7 +177,8 @@ if 'dados_mun' in locals() and 'resumo' in locals():
     with col3:
         st.metric("Áreas", resumo['total_areas'])
     with col4:
-        exec_pct = (resumo['total_pago'] / resumo['total_empenhado'] * 100) if resumo['total_empenhado'] > 0 else 0
+        empenhado = resumo['total_empenhado']
+        exec_pct = (resumo['total_pago'] / empenhado * 100) if empenhado > 0 else 0
         st.metric("Execução", f"{exec_pct:.1f}%")
 
 
@@ -189,15 +190,27 @@ if 'dados_mun' in locals() and 'resumo' in locals():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(grafico_evolucao_anual(emendas_ano), use_container_width=True, key="chart_evolucao_anual")
+        st.plotly_chart(
+            grafico_evolucao_anual(emendas_ano),
+            use_container_width=True,
+            key="chart_evolucao_anual"
+        )
     with col2:
-        st.plotly_chart(grafico_pizza_areas(emendas_area), use_container_width=True, key="chart_pizza_areas")
+        st.plotly_chart(
+            grafico_pizza_areas(emendas_area), use_container_width=True, key="chart_pizza_areas"
+        )
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(grafico_barras_areas(emendas_area), use_container_width=True, key="chart_barras_areas")
+        st.plotly_chart(
+            grafico_barras_areas(emendas_area), use_container_width=True, key="chart_barras_areas"
+        )
     with col2:
-        st.plotly_chart(grafico_barras_autores(emendas_autor), use_container_width=True, key="chart_barras_autores")
+        st.plotly_chart(
+            grafico_barras_autores(emendas_autor),
+            use_container_width=True,
+            key="chart_barras_autores"
+        )
 
 
     # =============================================================================
@@ -244,8 +257,12 @@ if 'dados_mun' in locals() and 'resumo' in locals():
             "total_autores": resumo['total_autores'],
             "per_capita": per_capita,
             "execucao": exec_pct,
-            "principais_areas": emendas_area.head(3)['area'].tolist() if not emendas_area.empty else [],
-            "principais_autores": emendas_autor.head(3)['autor'].tolist() if not emendas_autor.empty else []
+            "principais_areas": (
+                emendas_area.head(3)['area'].tolist() if not emendas_area.empty else []
+            ),
+            "principais_autores": (
+                emendas_autor.head(3)['autor'].tolist() if not emendas_autor.empty else []
+            )
         }
 
         analise = gerar_analise_municipio(dados_llm)

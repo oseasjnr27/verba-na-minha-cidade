@@ -3,7 +3,6 @@
 # Cobre: get_municipios_df(), refresh_municipios_cache().
 
 import pandas as pd
-import pytest
 
 import utils_cache
 

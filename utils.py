@@ -114,6 +114,8 @@ def buscar_municipio_por_nome(nome_busca: str) -> pd.DataFrame:
 @st.cache_data(ttl=CACHE_TTL_SECONDS)
 def get_populacao_municipio(id_municipio: str) -> dict:
     """Busca população do município no BigQuery (último ano disponível)."""
+    # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
+    # nunca de input direto do usuário
     query = f"""
     SELECT
         id_municipio,
@@ -144,6 +146,8 @@ def get_populacao_municipio(id_municipio: str) -> dict:
 @st.cache_data(ttl=CACHE_TTL_SECONDS)
 def get_emendas_municipio(id_municipio: str) -> pd.DataFrame:
     """Busca todas as emendas parlamentares de um município."""
+    # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
+    # nunca de input direto do usuário
     query = f"""
     SELECT
         ano_emenda,
@@ -171,6 +175,8 @@ def get_emendas_municipio(id_municipio: str) -> pd.DataFrame:
 @st.cache_data(ttl=CACHE_TTL_SECONDS)
 def get_resumo_emendas(id_municipio: str) -> dict:
     """Retorna resumo agregado das emendas de um município."""
+    # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
+    # nunca de input direto do usuário
     query = f"""
     SELECT
         COUNT(*) as total_emendas,
@@ -206,6 +212,8 @@ def get_resumo_emendas(id_municipio: str) -> dict:
 @st.cache_data(ttl=CACHE_TTL_SECONDS)
 def get_emendas_por_ano(id_municipio: str) -> pd.DataFrame:
     """Retorna emendas agrupadas por ano."""
+    # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
+    # nunca de input direto do usuário
     query = f"""
     SELECT
         ano_emenda as ano,
@@ -227,6 +235,8 @@ def get_emendas_por_ano(id_municipio: str) -> pd.DataFrame:
 @st.cache_data(ttl=CACHE_TTL_SECONDS)
 def get_emendas_por_area(id_municipio: str) -> pd.DataFrame:
     """Retorna emendas agrupadas por área (função)."""
+    # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
+    # nunca de input direto do usuário
     query = f"""
     SELECT
         nome_funcao as area,
@@ -248,6 +258,8 @@ def get_emendas_por_area(id_municipio: str) -> pd.DataFrame:
 @st.cache_data(ttl=CACHE_TTL_SECONDS)
 def get_emendas_por_autor(id_municipio: str) -> pd.DataFrame:
     """Retorna emendas agrupadas por autor (parlamentar), top 15."""
+    # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
+    # nunca de input direto do usuário
     query = f"""
     SELECT
         nome_autor_emenda AS autor,

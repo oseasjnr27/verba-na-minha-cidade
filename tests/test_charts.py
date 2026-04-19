@@ -7,7 +7,6 @@
 
 import pandas as pd
 import plotly.graph_objects as go
-import pytest
 
 from charts import (
     apply_dark_theme,
