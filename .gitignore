@@ -1,0 +1,41 @@
+# Secrets e credenciais
+.env
+*.env
+
+# Ambiente virtual Python
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Testes e cobertura
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Dados gerados localmente
+data/*.csv
+
+# Documentação interna (não vai pro GitHub)
+CLAUDE.md
+BUGS.md
+TODO.md
+
+# Arquivos temporários de debug
+credenciais_test.py
+test.py
+test_setup.py
+
+# Notas pessoais
+*.txt
+melhorias.md
+
+# Pasta Reflex (não faz parte deste projeto)
+.web/
+
+# Cursor/VSCode
+.vscode/
+.cursor/
+.claude/
