@@ -6,11 +6,7 @@ e emendas parlamentares de forma acessível e interativa.
 """
 
 import streamlit as st
-from sentry_setup import inicializar_sentry
-
-inicializar_sentry()
-
-# Imports dos nossos módulos
+import sentry_setup
 from config import APP_NAME, APP_DESCRIPTION
 from agent_identity import AGENT_IDENTITY
 from utils import (
@@ -41,6 +37,8 @@ from charts import (
     grafico_barras_areas,
     grafico_barras_autores
 )
+
+sentry_setup.inicializar_sentry()
 
 
 # =============================================================================

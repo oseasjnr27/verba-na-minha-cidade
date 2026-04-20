@@ -2,7 +2,6 @@
 # Cobre: lgpd_foi_aceito, aceitar_lgpd, mostrar_banner_lgpd.
 
 from unittest.mock import MagicMock
-import pytest
 
 from lgpd import lgpd_foi_aceito, aceitar_lgpd, mostrar_banner_lgpd
 

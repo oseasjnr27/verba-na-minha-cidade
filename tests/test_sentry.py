@@ -1,8 +1,7 @@
 # test_sentry.py — Testa inicialização do Sentry.
 # Garante: DSN obrigatório para init, send_default_pii=False, app não quebra sem DSN.
 
-from unittest.mock import patch, MagicMock
-import pytest
+from unittest.mock import patch
 
 from sentry_setup import inicializar_sentry
 
