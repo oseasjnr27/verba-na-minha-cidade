@@ -30,6 +30,7 @@ test_setup.py
 
 # Notas pessoais
 *.txt
+!requirements*.txt
 melhorias.md
 
 # Pasta Reflex (não faz parte deste projeto)
@@ -39,3 +40,5 @@ melhorias.md
 .vscode/
 .cursor/
 .claude/
+.streamlit/secrets.toml
+*.json
