@@ -6,6 +6,8 @@
 #        get_dados_completos_municipio().
 # Todas as APIs externas são mockadas — nenhuma chamada real ocorre.
 
+import logging
+
 import pandas as pd
 from unittest.mock import MagicMock
 
@@ -338,3 +340,125 @@ class TestGetDadosCompletosMunicipio:
         assert resultado["populacao"] == 115423
         assert resultado["resumo_emendas"]["total_emendas"] == 42
         assert not resultado["emendas_por_ano"].empty
+
+
+# =============================================================================
+# Logging — WARNING sem vazar str(e)
+# =============================================================================
+
+def _raise(msg):
+    """Helper: lambda que lança Exception com mensagem controlada."""
+    def _inner(*a, **kw):
+        raise Exception(msg)
+    return _inner
+
+
+def _assert_warning_sem_leak(caplog, msg_secreta):
+    """Verifica WARNING logado e str(e) não vazado em nenhum record."""
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) >= 1, "Esperava ao menos 1 WARNING"
+    for record in caplog.records:
+        assert msg_secreta not in record.message, (
+            f"Dado sensível '{msg_secreta}' vazou no log: {record.message}"
+        )
+
+
+class TestLoggingWarnings:
+
+    # ── IBGE ─────────────────────────────────────────────────────────────────
+
+    def test_get_municipio_ibge_loga_warning_quando_api_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils.requests.get", _raise("HTTP 500 secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            get_municipio_ibge("0000000")
+        # ASSERT
+        _assert_warning_sem_leak(caplog, "HTTP 500 secret")
+
+    def test_get_municipios_por_uf_loga_warning_quando_api_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils.requests.get", _raise("HTTP 503 secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            get_municipios_por_uf("XX")
+        # ASSERT
+        _assert_warning_sem_leak(caplog, "HTTP 503 secret")
+
+    # ── BigQuery ─────────────────────────────────────────────────────────────
+
+    def test_get_populacao_loga_warning_quando_bigquery_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils._bd_read_sql", _raise("query secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            resultado = get_populacao_municipio(ID_MUN)
+        # ASSERT
+        assert resultado == {"populacao": 0, "ano_populacao": 0}
+        _assert_warning_sem_leak(caplog, "query secret")
+
+    def test_get_emendas_municipio_loga_warning_quando_bigquery_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils._bd_read_sql", _raise("bq secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            resultado = get_emendas_municipio(ID_MUN)
+        # ASSERT
+        assert resultado.empty
+        _assert_warning_sem_leak(caplog, "bq secret")
+
+    def test_get_resumo_emendas_loga_warning_quando_bigquery_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils._bd_read_sql", _raise("bq secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            resultado = get_resumo_emendas(ID_MUN)
+        # ASSERT
+        assert resultado["total_emendas"] == 0
+        _assert_warning_sem_leak(caplog, "bq secret")
+
+    def test_get_emendas_por_ano_loga_warning_quando_bigquery_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils._bd_read_sql", _raise("bq secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            resultado = get_emendas_por_ano(ID_MUN)
+        # ASSERT
+        assert resultado.empty
+        _assert_warning_sem_leak(caplog, "bq secret")
+
+    def test_get_emendas_por_area_loga_warning_quando_bigquery_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils._bd_read_sql", _raise("bq secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            resultado = get_emendas_por_area(ID_MUN)
+        # ASSERT
+        assert resultado.empty
+        _assert_warning_sem_leak(caplog, "bq secret")
+
+    def test_get_emendas_por_autor_loga_warning_quando_bigquery_falha(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE
+        monkeypatch.setattr("utils._bd_read_sql", _raise("bq secret"))
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils"):
+            resultado = get_emendas_por_autor(ID_MUN)
+        # ASSERT
+        assert resultado.empty
+        _assert_warning_sem_leak(caplog, "bq secret")

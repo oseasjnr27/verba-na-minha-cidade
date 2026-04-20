@@ -6,12 +6,16 @@ FONTES:
 - BigQuery: Dados de população e emendas parlamentares
 """
 
+import logging
+
 import pandas as pd
 import requests
 from unidecode import unidecode
 import streamlit as st
 from config import CACHE_TTL_SECONDS
 from utils_cache import get_municipios_df, _bd_read_sql
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -43,7 +47,7 @@ def get_municipio_ibge(id_municipio: str) -> dict:
             "regiao": data["microrregiao"]["mesorregiao"]["UF"]["regiao"]["nome"]
         }
     except Exception as e:
-        print(f"Erro API IBGE: {e}")
+        logger.warning("Erro API IBGE get_municipio_ibge: %s", type(e).__name__)
         return {}
 
 
@@ -57,7 +61,7 @@ def get_municipios_por_uf(sigla_uf: str) -> list:
         data = response.json()
         return [{"id": m["id"], "nome": m["nome"]} for m in data]
     except Exception as e:
-        print(f"Erro API IBGE: {e}")
+        logger.warning("Erro API IBGE get_municipios_por_uf: %s", type(e).__name__)
         return []
 
 
@@ -140,7 +144,7 @@ def get_populacao_municipio(id_municipio: str) -> dict:
                 "ano_populacao": int(df.iloc[0]['ano'])
             }
     except Exception as e:
-        print(f"Erro BigQuery população: {e}")
+        logger.warning("Erro BigQuery populacao: %s", type(e).__name__)
 
     return {"populacao": 0, "ano_populacao": 0}
 
@@ -174,7 +178,7 @@ def get_emendas_municipio(id_municipio: str) -> pd.DataFrame:
         df = _bd_read_sql(query)
         return df
     except Exception as e:
-        print(f"Erro ao buscar emendas: {e}")
+        logger.warning("Erro ao buscar emendas: %s", type(e).__name__)
         return pd.DataFrame()
 
 
@@ -204,7 +208,7 @@ def get_resumo_emendas(id_municipio: str) -> dict:
                 "total_areas": int(df.iloc[0]['total_areas'] or 0)
             }
     except Exception as e:
-        print(f"Erro ao buscar resumo: {e}")
+        logger.warning("Erro ao buscar resumo emendas: %s", type(e).__name__)
 
     return {
         "total_emendas": 0,
@@ -219,7 +223,7 @@ def get_resumo_emendas(id_municipio: str) -> dict:
 def get_emendas_por_ano(id_municipio: str) -> pd.DataFrame:
     """Retorna emendas agrupadas por ano."""
     # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
-    # nunca de input direto do usuário
+    # nunca de input direto do usuario
     query = f"""
     SELECT
         ano_emenda as ano,
@@ -234,7 +238,7 @@ def get_emendas_por_ano(id_municipio: str) -> pd.DataFrame:
     try:
         return _bd_read_sql(query)
     except Exception as e:
-        print(f"Erro: {e}")
+        logger.warning("Erro ao buscar emendas por ano: %s", type(e).__name__)
         return pd.DataFrame()
 
 
@@ -242,7 +246,7 @@ def get_emendas_por_ano(id_municipio: str) -> pd.DataFrame:
 def get_emendas_por_area(id_municipio: str) -> pd.DataFrame:
     """Retorna emendas agrupadas por área (função)."""
     # nosec B608 — id_municipio vem de lookup interno validado pelo guardrail,
-    # nunca de input direto do usuário
+    # nunca de input direto do usuario
     query = f"""
     SELECT
         nome_funcao as area,
@@ -257,7 +261,7 @@ def get_emendas_por_area(id_municipio: str) -> pd.DataFrame:
     try:
         return _bd_read_sql(query)
     except Exception as e:
-        print(f"Erro: {e}")
+        logger.warning("Erro ao buscar emendas por area: %s", type(e).__name__)
         return pd.DataFrame()
 
 
@@ -282,7 +286,7 @@ def get_emendas_por_autor(id_municipio: str) -> pd.DataFrame:
         df = _bd_read_sql(query)
         return df
     except Exception as e:
-        print(f"Erro ao buscar emendas por autor: {e}")
+        logger.warning("Erro ao buscar emendas por autor: %s", type(e).__name__)
         return pd.DataFrame()
 
 
