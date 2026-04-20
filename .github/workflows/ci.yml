@@ -30,11 +30,11 @@ jobs:
         with:
           python-version: '3.11'
       - name: Instalar dependências do projeto
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
       - name: Bandit — análise estática de segurança
-        run: pip install bandit && bandit -r . -c pyproject.toml
+        run: bandit -r . -c pyproject.toml
       - name: pip-audit — vulnerabilidades em dependências
-        run: pip install pip-audit && pip-audit
+        run: pip-audit
         continue-on-error: true
 
   test:
@@ -50,7 +50,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - name: Instalar dependências
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
       - name: Rodar testes com cobertura
         run: pytest tests/ -v --cov=. --cov-report=xml --cov-fail-under=80
       - name: Upload cobertura
