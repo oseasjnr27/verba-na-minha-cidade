@@ -1,110 +1,25 @@
-# ── Core App ────────────────────────────────────────────────
+# Dependências diretas do app
+# Pacotes Google sem versão fixa — pip resolve transitivas no Linux
+# pandas-gbq==0.33.0 FIXADO (BUG #17: versões anteriores quebram queries)
+
+# ── Core ────────────────────────────────────────────────────
 streamlit==1.54.0
-python-dotenv==1.2.1
+python-dotenv>=1.0.0
 unidecode==1.4.0
 
 # ── Data ────────────────────────────────────────────────────
 pandas==2.3.3
-numpy==2.4.2
-pyarrow==23.0.0
-
-# ── Visualização ────────────────────────────────────────────
 plotly==6.5.2
 
 # ── Google Cloud / BigQuery ─────────────────────────────────
 basedosdados==2.0.2
-google-cloud-bigquery==3.40.1
-google-cloud-bigquery-storage==2.36.1
-google-cloud-storage==2.19.0
-google-cloud-core==2.5.0
-google-auth==2.49.2
-google-auth-httplib2==0.3.0
-google-auth-oauthlib==1.2.4
-google-api-core==2.29.0
-google-api-python-client==2.190.0
-google-resumable-media==2.8.0
-google-crc32c==1.8.0
+google-cloud-bigquery
+google-auth
+google-auth-oauthlib
 pandas-gbq==0.33.0
-pydata-google-auth==1.9.1
-db-dtypes==1.5.0
-grpcio==1.78.0
-grpcio-status==1.71.2
-grpc-google-iam-v1==0.14.3
-googleapis-common-protos==1.72.0
-proto-plus==1.27.1
-protobuf==5.29.6
 
 # ── Gemini AI ───────────────────────────────────────────────
-google-generativeai==0.8.6
-google-ai-generativelanguage==0.6.15
 google-genai==1.73.1
 
-# ── HTTP / Auth ─────────────────────────────────────────────
-requests==2.32.5
-requests-oauthlib==2.0.0
-oauthlib==3.3.1
-httpx==0.28.1
-httpcore==1.0.9
-httplib2==0.31.2
-urllib3==2.6.3
-certifi==2026.1.4
-charset-normalizer==3.4.4
-idna==3.11
-cryptography==46.0.5
-cffi==2.0.0
-pycparser==3.0
-pyasn1==0.6.2
-pyasn1_modules==0.4.2
-rsa==4.9.1
-cachetools==6.2.6
-
-# ── Streamlit internals ─────────────────────────────────────
-altair==6.0.0
-narwhals==2.16.0
-blinker==1.9.0
-pillow==12.1.1
-pydeck==0.9.1
-watchdog==6.0.0
-watchfiles==1.1.1
-tornado==6.5.4
-GitPython==3.1.46
-gitdb==4.0.12
-smmap==5.0.2
-rich==14.3.2
-click==8.3.1
-toml==0.10.2
-tomlkit==0.11.8
-Jinja2==3.1.6
-MarkupSafe==3.0.3
-Pygments==2.19.2
-markdown-it-py==4.0.0
-mdurl==0.1.2
-tenacity==9.1.4
-packaging==25.0
-
-# ── Utils ───────────────────────────────────────────────────
-python-dateutil==2.9.0.post0
-pytz==2025.2
-tzdata==2025.3
-six==1.17.0
-tqdm==4.67.3
-typing_extensions==4.15.0
-pydantic==2.12.5
-pydantic_core==2.41.5
-annotated-types==0.7.0
-loguru==0.7.3
-pyparsing==3.3.2
-jsonschema==4.26.0
-jsonschema-specifications==2025.9.1
-referencing==0.37.0
-rpds-py==0.30.0
-attrs==25.4.0
-platformdirs==4.9.1
-sniffio==1.3.1
-anyio==4.12.1
-distro==1.9.0
-psutil==7.2.2
-docopt==0.6.2
-path-and-address==2.0.1
-uritemplate==4.2.0
-wrapt==2.1.1
+# ── HTTP ────────────────────────────────────────────────────
+requests>=2.28.0
