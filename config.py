@@ -7,11 +7,14 @@ config.py - Configurações centralizadas do projeto
 - Facilita alternar entre ambientes (dev/prod)
 """
 
+import logging
 import os
 from dotenv import load_dotenv
 
 # Carrega variáveis do .env para o ambiente
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 def _get_secret(section: str, key: str) -> str | None:
@@ -21,8 +24,12 @@ def _get_secret(section: str, key: str) -> str | None:
         val = st.secrets[section][key]
         if isinstance(val, str) and val:
             return val
-    except Exception:
-        pass
+    except (KeyError, AttributeError):
+        logger.debug("Streamlit secrets ausentes — modo local (%s.%s)", section, key)
+    except Exception as e:
+        logger.warning(
+            "Excecao inesperada em _get_secret(%s, %s): %s", section, key, type(e).__name__
+        )
     return None
 
 

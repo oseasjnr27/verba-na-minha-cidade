@@ -9,11 +9,15 @@ DECISÃO DE ARQUITETURA:
     Para atualizar: chamar refresh_municipios_cache() manualmente.
 """
 
+import logging
+
 import pandas as pd
 from pandas_gbq import read_gbq
 from basedosdados.download.download import _credentials
 
 from config import GCP_PROJECT_ID, GCP_LOCATION
+
+logger = logging.getLogger(__name__)
 
 
 def _get_credentials():
@@ -31,8 +35,12 @@ def _get_credentials():
                 sa_info,
                 scopes=["https://www.googleapis.com/auth/bigquery"],
             )
-    except Exception:
-        pass
+    except (KeyError, AttributeError):
+        logger.debug("Streamlit secrets ausentes — modo local")
+    except Exception as e:
+        logger.warning(
+            "Excecao inesperada em _get_credentials: %s", type(e).__name__
+        )
     return _credentials()
 
 CACHE_FILE = "data/municipios.csv"

@@ -1,6 +1,10 @@
 # test_utils_cache.py — Testa o sistema de cache CSV para municípios.
 # Usa tmp_path do pytest para isolamento: nenhum arquivo CSV real é criado.
-# Cobre: get_municipios_df(), refresh_municipios_cache().
+# Cobre: get_municipios_df(), refresh_municipios_cache(), _get_credentials().
+
+import logging
+import sys
+from unittest.mock import MagicMock
 
 import pandas as pd
 
@@ -128,3 +132,76 @@ class TestRefreshMunicipiosCache:
         utils_cache.refresh_municipios_cache()
         # ASSERT — forçou BigQuery independente do CSV existir
         assert len(chamadas_bq) == 1
+
+
+# =============================================================================
+# _get_credentials() — logging estruturado
+# =============================================================================
+
+def _secrets_raising(exc):
+    """Cria mock de st.secrets que levanta exc ao ser subscrito."""
+    mock = MagicMock()
+    mock.__getitem__ = MagicMock(side_effect=exc)
+    return mock
+
+
+class TestGetCredentialsLogging:
+
+    def test_get_credentials_loga_debug_quando_sem_secrets(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE — KeyError: secrets não configurados (modo local esperado)
+        monkeypatch.setattr(
+            sys.modules["streamlit"], "secrets",
+            _secrets_raising(KeyError("gcp"))
+        )
+        monkeypatch.setattr("utils_cache._credentials", lambda: None)
+
+        # ACT
+        with caplog.at_level(logging.DEBUG, logger="utils_cache"):
+            utils_cache._get_credentials()
+
+        # ASSERT — debug logado, sem warnings
+        debug_msgs = [r.message for r in caplog.records if r.levelno == logging.DEBUG]
+        assert any("modo local" in m for m in debug_msgs)
+        assert not any(r.levelno >= logging.WARNING for r in caplog.records)
+
+    def test_get_credentials_loga_warning_quando_excecao_inesperada(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE — RuntimeError: exceção não esperada
+        monkeypatch.setattr(
+            sys.modules["streamlit"], "secrets",
+            _secrets_raising(RuntimeError("falha inesperada"))
+        )
+        monkeypatch.setattr("utils_cache._credentials", lambda: None)
+
+        # ACT
+        with caplog.at_level(logging.WARNING, logger="utils_cache"):
+            utils_cache._get_credentials()
+
+        # ASSERT — warning com tipo da exceção
+        warning_msgs = [r.message for r in caplog.records if r.levelno == logging.WARNING]
+        assert len(warning_msgs) >= 1
+        assert any("RuntimeError" in m for m in warning_msgs)
+
+    def test_get_credentials_nao_loga_dados_sensiveis(
+        self, monkeypatch, caplog
+    ):
+        # ARRANGE — exceção com conteúdo sensível na mensagem
+        mensagem_sensivel = "private_key=abc123secret"
+        monkeypatch.setattr(
+            sys.modules["streamlit"], "secrets",
+            _secrets_raising(RuntimeError(mensagem_sensivel))
+        )
+        monkeypatch.setattr("utils_cache._credentials", lambda: None)
+
+        # ACT
+        with caplog.at_level(logging.DEBUG, logger="utils_cache"):
+            utils_cache._get_credentials()
+
+        # ASSERT — nenhum record vaza o dado sensível
+        for record in caplog.records:
+            assert "abc123secret" not in record.message
+            assert mensagem_sensivel not in record.message
+            assert "private_key" not in record.message
