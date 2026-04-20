@@ -93,7 +93,7 @@ with col1:
     )
 with col2:
     st.markdown("<br>", unsafe_allow_html=True)
-    btn_buscar = st.button("Buscar →", type="primary", use_container_width=True)
+    btn_buscar = st.button("Buscar →", type="primary", width='stretch')
 
 # Autocomplete em tempo real (mínimo 2 chars, antes de clicar Buscar)
 sugestoes_df = None
@@ -219,23 +219,23 @@ if 'dados_mun' in locals() and 'resumo' in locals():
     with col1:
         st.plotly_chart(
             grafico_evolucao_anual(emendas_ano),
-            use_container_width=True,
+            width='stretch',
             key="chart_evolucao_anual"
         )
     with col2:
         st.plotly_chart(
-            grafico_pizza_areas(emendas_area), use_container_width=True, key="chart_pizza_areas"
+            grafico_pizza_areas(emendas_area), width='stretch', key="chart_pizza_areas"
         )
 
     col1, col2 = st.columns(2)
     with col1:
         st.plotly_chart(
-            grafico_barras_areas(emendas_area), use_container_width=True, key="chart_barras_areas"
+            grafico_barras_areas(emendas_area), width='stretch', key="chart_barras_areas"
         )
     with col2:
         st.plotly_chart(
             grafico_barras_autores(emendas_autor),
-            use_container_width=True,
+            width='stretch',
             key="chart_barras_autores"
         )
 
@@ -250,7 +250,7 @@ if 'dados_mun' in locals() and 'resumo' in locals():
         if not df_emendas.empty:
             st.dataframe(
                 df_emendas,
-                use_container_width=True,
+                width='stretch',
                 hide_index=True
             )
 
