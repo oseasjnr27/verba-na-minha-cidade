@@ -6,6 +6,9 @@ e emendas parlamentares de forma acessível e interativa.
 """
 
 import streamlit as st
+from sentry_setup import inicializar_sentry
+
+inicializar_sentry()
 
 # Imports dos nossos módulos
 from config import APP_NAME, APP_DESCRIPTION
@@ -25,6 +28,13 @@ from guardrails import filtrar_entrada, filtrar_saida, validar_municipio
 from memory import get_memoria_sessao
 from styles import aplicar_estilos
 from lgpd import mostrar_banner_lgpd
+from rate_limit import (
+    incrementar_busca,
+    limite_busca_atingido,
+    get_buscas_restantes,
+    incrementar_chat,
+    limite_chat_atingido,
+)
 from charts import (
     grafico_evolucao_anual,
     grafico_pizza_areas,
@@ -71,6 +81,8 @@ with st.sidebar:
     st.markdown("- [CGU - Emendas](https://portaldatransparencia.gov.br)")
     st.markdown("- [Base dos Dados](https://basedosdados.org)")
     st.divider()
+    restantes = get_buscas_restantes(st.session_state)
+    st.caption(f"Buscas restantes nesta sessão: {restantes}")
     st.caption("Projeto educacional")
 
 
@@ -122,6 +134,14 @@ if len(municipio_input.strip()) >= 2 and not btn_buscar:
 # LÓGICA DE BUSCA E CARREGAMENTO
 # =============================================================================
 if municipio_input and btn_buscar:
+    # Rate limiting
+    if limite_busca_atingido(st.session_state):
+        st.warning(
+            "Você atingiu o limite de buscas desta sessão. "
+            "Reabra o app para continuar."
+        )
+        st.stop()
+
     # Validações de segurança
     entrada_ok, msg = validar_municipio(municipio_input)
     if not entrada_ok:
@@ -156,6 +176,7 @@ if municipio_input and btn_buscar:
         id_mun = resultados.iloc[0]['id_municipio']
         selecionado = resultados.iloc[0]['nome_completo']
 
+    incrementar_busca(st.session_state)
     st.success(f"**{selecionado}** | Código IBGE: `{id_mun}`")
 
     # Carrega todos os dados reais
@@ -316,7 +337,10 @@ if 'dados_mun' in locals() and 'resumo' in locals():
     st.divider()
     st.markdown('<p class="vera-header">💬 Pergunte à Vera</p>', unsafe_allow_html=True)
 
-    if pergunta := st.chat_input("Ex: Por que a saúde recebe mais recursos?"):
+    if limite_chat_atingido(st.session_state):
+        st.info("Limite de perguntas desta sessão atingido. Reabra o app para continuar.")
+    elif pergunta := st.chat_input("Ex: Por que a saúde recebe mais recursos?"):
+        incrementar_chat(st.session_state)
         seguro, msg = filtrar_entrada(pergunta)
         if not seguro:
             st.error(msg)
