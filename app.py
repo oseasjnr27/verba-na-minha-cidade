@@ -24,6 +24,7 @@ from llm import gerar_analise_municipio, responder_pergunta
 from guardrails import filtrar_entrada, filtrar_saida, validar_municipio
 from memory import get_memoria_sessao
 from styles import aplicar_estilos
+from lgpd import mostrar_banner_lgpd
 from charts import (
     grafico_evolucao_anual,
     grafico_pizza_areas,
@@ -43,6 +44,9 @@ st.set_page_config(
 
 # Tema dark (BUG #4)
 aplicar_estilos(st)
+
+# Consentimento LGPD — banner não-bloqueante na primeira visita
+mostrar_banner_lgpd(st, st.session_state)
 
 # Memória isolada por sessão de usuário (BUG #3)
 memoria = get_memoria_sessao(st.session_state)
