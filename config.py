@@ -13,12 +13,25 @@ from dotenv import load_dotenv
 # Carrega variáveis do .env para o ambiente
 load_dotenv()
 
+
+def _get_secret(section: str, key: str) -> str | None:
+    """Lê segredo do Streamlit Cloud; cai no .env se local ou em teste."""
+    try:
+        import streamlit as st
+        val = st.secrets[section][key]
+        if isinstance(val, str) and val:
+            return val
+    except Exception:
+        pass
+    return None
+
+
 # === Google Cloud / BigQuery ===
-GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
+GCP_PROJECT_ID = _get_secret("gcp", "project_id") or os.getenv("GCP_PROJECT_ID")
 GCP_LOCATION = os.getenv("GCP_LOCATION", "US")
 
 # === Gemini ===
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = _get_secret("gcp", "gemini_api_key") or os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = "gemini-2.5-flash"
 
 # === Configurações do App ===

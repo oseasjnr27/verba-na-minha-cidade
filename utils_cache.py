@@ -15,6 +15,26 @@ from basedosdados.download.download import _credentials
 
 from config import GCP_PROJECT_ID, GCP_LOCATION
 
+
+def _get_credentials():
+    """Retorna credenciais adequadas ao ambiente.
+
+    Streamlit Cloud: Service Account via st.secrets.
+    Local: OAuth via basedosdados (_credentials).
+    """
+    try:
+        import streamlit as st
+        from google.oauth2 import service_account
+        sa_info = dict(st.secrets["gcp"]["service_account"])
+        if isinstance(sa_info.get("type"), str):
+            return service_account.Credentials.from_service_account_info(
+                sa_info,
+                scopes=["https://www.googleapis.com/auth/bigquery"],
+            )
+    except Exception:
+        pass
+    return _credentials()
+
 CACHE_FILE = "data/municipios.csv"
 
 _QUERY_MUNICIPIOS = """
@@ -40,7 +60,7 @@ def _bd_read_sql(query: str) -> pd.DataFrame:
         query,
         project_id=GCP_PROJECT_ID,
         location=GCP_LOCATION,
-        credentials=_credentials(),
+        credentials=_get_credentials(),
     )
 
 
